@@ -4,6 +4,7 @@ const dyanmoConfig = {};
 
 // ugly but OK, here's where we will check the environment
 const atomicTableName = process.env.atomicCounterTableName;
+
 const endpoint = process.env.DYNAMODB_URL;
 if (endpoint) {
   dyanmoConfig.endpoint = endpoint;
@@ -27,21 +28,23 @@ export default {
 
 function atomicUpdate(counterId, options) {
   options || (options = {});
+
   var params = {
-    Key: {},
-    AttributeUpdates: {},
-    ReturnValues: "UPDATED_NEW",
-    TableName: options.tableName,
+    TableName:options.tableName,
+    Key:{},
+    UpdateExpression: "",
+    ExpressionAttributeValues:{
+        ":incre": 1,
+        ":zero": 0,
+    },
+    ReturnValues:"UPDATED_NEW"
   };
+
   var keyAttribute = options.keyAttribute || "id";
   var countAttribute = options.countAttribute || "lastValue";
+  params.UpdateExpression = `set ${countAttribute} = if_not_exists(${countAttribute}, :zero) + :incre`;
 
-  params.Key[keyAttribute] = { S: counterId };
-  params.AttributeUpdates[countAttribute] = {
-    Action: "ADD",
-    Value: {
-      N: "" + 1,
-    },
-  };
-  return new AWS.DynamoDB().updateItem(params).promise();
+  params.Key[keyAttribute] = counterId;
+
+  return client.update(params).promise();
 }
