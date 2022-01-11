@@ -46,5 +46,5 @@ function atomicUpdate(counterId, options) {
 
   params.Key[keyAttribute] = counterId;
 
-  return new client.update(params).promise();
+  return client.update(params).promise();
 }
