@@ -35,6 +35,20 @@ export default function Profile() {
     onLoad();
   }, []);
 
+  function onInfoChange(e, attr) {
+    switch(attr){
+      case "firstName":
+        setFirstName(e.target.value);
+        break;
+      case "lastName":
+        setLastName(e.target.value);
+        break;
+      case "email":
+        setEmail(e.target.value);
+        break;
+    }
+  }
+
   function validatePhoneNumber(phone) {
     if (phone === "1" || phone === "") return true;
     return phone.length === 11;
@@ -64,6 +78,7 @@ export default function Profile() {
       await updateCurrentUserAttributes({
         given_name: firstName,
         family_name: lastName,
+        email: email,
         phone_number: formatPhoneNumberForSubmission(phoneNumber),
       });
       history.push("/");
@@ -79,15 +94,27 @@ export default function Profile() {
       <form onSubmit={handleSubmit}>
         <FormGroup controlId="email">
           <FormLabel>Email</FormLabel>
-          <FormControl value={email} disabled={true} />
+          <FormControl 
+            value={email} 
+            disabled={false} 
+            onChange={(e) => onInfoChange(e, "email")}
+          />
         </FormGroup>
         <FormGroup controlId="firstName">
           <FormLabel>First Name</FormLabel>
-          <FormControl value={firstName} disabled={true} />
+          <FormControl 
+            value={firstName} 
+            disabled={false} 
+            onChange={(e) => onInfoChange(e, "firstName")}
+          />
         </FormGroup>
         <FormGroup controlId="lastName">
           <FormLabel>Last Name</FormLabel>
-          <FormControl value={lastName} disabled={true} />
+          <FormControl 
+            value={lastName} 
+            disabled={false} 
+            onChange={(e) => onInfoChange(e, "lastName")}
+          />
         </FormGroup>
         <FormGroup controlId="phoneNumber">
           <FormLabel>Phone</FormLabel>
