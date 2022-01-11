@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { Auth } from "aws-amplify";
 import { AppContext } from "./libs/contextLib";
 import { onError } from "./libs/errorLib";
-import { loginLocalUser } from "./libs/user";
+import { loginLocalUser, currentUserInfo } from "./libs/user";
 import Routes from "./Routes";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -20,14 +20,23 @@ function App() {
 
   async function onLoad() {
     try {
-      await Auth.currentSession();
-      userHasAuthenticated(true);
+      const localLogin = config.LOCAL_LOGIN === "true";
+      if (localLogin) {
+        const isUserLoggedIn = await currentUserInfo();
+        if (isUserLoggedIn.username) {
+          userHasAuthenticated(true);
+        } else {
+          setIsAuthenticating(false);
+        }
+      } else {
+        await Auth.currentSession();
+        userHasAuthenticated(true);
+      }
     } catch (e) {
       if (e !== "No current user") {
         onError(e);
       }
     }
-
     setIsAuthenticating(false);
   }
 
